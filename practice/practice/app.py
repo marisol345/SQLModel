@@ -16,35 +16,51 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=True)
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+# def create_db_and_tables():
+#     SQLModel.metadata.create_all(engine)
 
 
-#create
-def create_heroes():  
-    hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")  
-    hero_2 = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
-    hero_3 = Hero(name="Rusty-Man", secret_name="Tommy Sharp", age=48)
+# #create
+# def create_heroes():  
+#     hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")  
+#     hero_2 = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+#     hero_3 = Hero(name="Rusty-Man", secret_name="Tommy Sharp", age=48)
 
-    with Session(engine) as session:  
-        session.add(hero_1)  
-        session.add(hero_2)
-        session.add(hero_3)
+#     with Session(engine) as session:  
+#         session.add(hero_1)  
+#         session.add(hero_2)
+#         session.add(hero_3)
 
-        session.commit()  
+#         session.commit()  
 
-#read
-def select_heroes():
+# #read
+# def select_heroes():
+#     with Session(engine) as session:
+#         statement = select(Hero).where(Hero.name == "Deadpond")#filter
+#         results = session.exec(statement)
+#         for hero in results:
+#             print(hero)
+
+
+def update_heroes():
     with Session(engine) as session:
-        statement = select(Hero).where(Hero.name == "Deadpond")#filter
+        statement = select(Hero).where(Hero.name == "Spider-Boy")
         results = session.exec(statement)
-        for hero in results:
-            print(hero)
+        hero = results.one()
+        print("Hero:", hero)
 
+        hero.age = 16
+        session.add(hero)
+        session.commit()
+        session.refresh(hero)
+        print("Updated hero:", hero)
+
+        
 def main():   
-    create_db_and_tables()  
-    create_heroes()  
-    select_heroes()
+    # create_db_and_tables()  
+    # create_heroes()  
+    # select_heroes()
+    update_heroes()
 
 
 if __name__ == "__main__":  
