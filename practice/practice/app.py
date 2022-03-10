@@ -42,25 +42,45 @@ engine = create_engine(sqlite_url, echo=True)
 #             print(hero)
 
 
-def update_heroes():
+# def update_heroes():
+#     with Session(engine) as session:
+#         statement = select(Hero).where(Hero.name == "Spider-Boy")
+#         results = session.exec(statement)
+#         hero = results.one()
+#         print("Hero:", hero)
+
+#         hero.age = 16
+#         session.add(hero)
+#         session.commit()
+#         session.refresh(hero)
+#         print("Updated hero:", hero)
+
+
+def delete_heroes():
     with Session(engine) as session:
-        statement = select(Hero).where(Hero.name == "Spider-Boy")
-        results = session.exec(statement)
-        hero = results.one()
-        print("Hero:", hero)
+        statement = select(Hero).where(Hero.name == "Deadpond")  
+        results = session.exec(statement)   
+        hero = results.one()   
+        print("Hero: ", hero)   
 
-        hero.age = 16
-        session.add(hero)
-        session.commit()
-        session.refresh(hero)
-        print("Updated hero:", hero)
+        session.delete(hero)   
+        session.commit()   
+        #print the deleted hero
+        print("Deleted hero:", hero)  
+        #query the db again
+        statement = select(Hero).where(Hero.name == "Deadpond")   
+        results = session.exec(statement)   
+        hero = results.first()   
+        #validation
+        if hero is None:  
+            print("There's no hero named Deadpond")   
 
-        
 def main():   
     # create_db_and_tables()  
     # create_heroes()  
     # select_heroes()
-    update_heroes()
+    # update_heroes()
+    delete_heroes()
 
 
 if __name__ == "__main__":  
