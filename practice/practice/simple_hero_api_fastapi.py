@@ -1,17 +1,28 @@
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import FastAPI
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 
-class Hero(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class HeroBase(SQLModel):
     name: str = Field(index=True)
     secret_name: str
     age: Optional[int] = Field(default=None, index=True)
 
 
-sqlite_file_name = "db_simple_hero.db"
+class Hero(HeroBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+
+class HeroCreate(HeroBase):
+    pass
+
+
+class HeroRead(HeroBase):
+    id: int
+
+
+sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}
@@ -30,16 +41,17 @@ def on_startup():
     create_db_and_tables()
 
 
-@app.post("/heroes/")
-def create_hero(hero: Hero):
+@app.post("/heroes/", response_model=HeroRead)
+def create_hero(hero: HeroCreate):
     with Session(engine) as session:
-        session.add(hero)
+        db_hero = Hero.from_orm(hero)
+        session.add(db_hero)
         session.commit()
-        session.refresh(hero)
-        return hero
+        session.refresh(db_hero)
+        return db_hero
 
 
-@app.get("/heroes/")
+@app.get("/heroes/", response_model=List[HeroRead])
 def read_heroes():
     with Session(engine) as session:
         heroes = session.exec(select(Hero)).all()
